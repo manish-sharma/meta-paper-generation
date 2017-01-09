@@ -13,7 +13,7 @@ Gem::Specification.new do |s|
   # s.files         = `git ls-files`.split("\n")
   s.files         = Dir['lib/*.rb'] + Dir['lib/overrides/*.rb'] + Dir['lib/paper_generation/*.rb']
   s.test_files    = Dir['spec/*.rb'] + Dir['spec/paper_generation/*.rb']
-  s.homepage      = 'http://rubygems.org/gems/hola'
+  s.homepage      = 'https://github.com/manish-sharma/meta-paper-generation'
   s.license       = 'MIT'
   s.require_paths = ['lib']
 
