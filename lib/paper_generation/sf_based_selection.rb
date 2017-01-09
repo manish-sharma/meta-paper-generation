@@ -7,8 +7,7 @@ module PaperGeneration
     @avail_q_matrix = nil
     @t_dl_req_q_count_matrix = nil
     @dl_required_question_count_hash = nil
-    @required_tags = nil
-    @selected_q_ids = nil
+
 
     # avail_q_matrix
     #
@@ -26,8 +25,35 @@ module PaperGeneration
       @selection_factor_matrix
     end
 
+    # Method that generates question id selection PhaseOne process
+    # override method of parent class
+    #
+    # @param [Hash] easy_q_id_tags_hash={}
+    # @example {easy_q_id=>[tag1_id,tag2_id,..]}
+    # @param [Hash] medium_q_id_tags_hash={}
+    # @example {medium_q_id=>[tag1_id,tag2_id,..]}
+    # @param [Hash] tough_q_id_tags_hash={}
+    # @example {tough_q_id=>[tag1_id,tag2_id,..]}
+    # @author Shobhit Dixit
+    def generate(*args)
+      set_q_availability_matrix(args[0], args[1], args[2])
+      set_selection_factor_matrix
+      max_selection_factor = @selection_factor_matrix.max_with_index
+      while(max_selection_factor[0] > 0)
+        q_id = select_q_from((@avail_q_matrix[max_selection_factor[1], max_selection_factor[2]]).to_a)
+        update_tag_dl_required_q_counts(max_selection_factor[1], max_selection_factor[2])
+        # as selected question shall have only one difficulty level,
+        # and it will be removed from that column only
+        update_avail_q_matrix_column(max_selection_factor[2], q_id)
+        set_selection_factor_matrix
+        max_selection_factor = @selection_factor_matrix.max_with_index
+        @selected_q_ids << q_id if !q_id.nil?
+      end
+    end
+
     # Method that set q_availability_matrix
     #
+    # @private
     # @param [Hash] easy_q_id_tags_hash={}
     # @example {easy_q_id=>[tag1_id,tag2_id,..]}
     # @param [Hash] medium_q_id_tags_hash={}
@@ -50,6 +76,7 @@ module PaperGeneration
 
     # Method that set selection_factor_matrix
     #
+    # @private
     # @return [Matrix] selection_factor_matrix
     # @author Shobhit Dixit
     def set_selection_factor_matrix
@@ -65,53 +92,45 @@ module PaperGeneration
       @selection_factor_matrix = Matrix.rows(sf_array)
     end
 
-    # Method that generates question id selection PhaseOne process
-    # override method of parent class
-    #
-    # @param [Hash] easy_q_id_tags_hash={}
-    # @example {easy_q_id=>[tag1_id,tag2_id,..]}
-    # @param [Hash] medium_q_id_tags_hash={}
-    # @example {medium_q_id=>[tag1_id,tag2_id,..]}
-    # @param [Hash] tough_q_id_tags_hash={}
-    # @example {tough_q_id=>[tag1_id,tag2_id,..]}
-    # @author Shobhit Dixit
-    def generate(*args)
-      set_q_availability_matrix(args[0], args[1], args[2])
-      set_selection_factor_matrix
-      max_selection_factor = @selection_factor_matrix.max_with_index
-      while(max_selection_factor[0] > 0)
-        # p "am : #{@avail_q_matrix}"
-        # p "sf : #{@selection_factor_matrix}"
-        # p [max_selection_factor[1], max_selection_factor[2]]
-        q_id = select_q_from((@avail_q_matrix[max_selection_factor[1], max_selection_factor[2]]).to_a)
-        update_tag_dl_required_q_counts(max_selection_factor[1], max_selection_factor[2])
-        # as selected question shall have only one difficulty level,
-        # and it will be removed from that column only
-        update_avail_q_matrix_column(max_selection_factor[2], q_id)
-        set_selection_factor_matrix
-        max_selection_factor = @selection_factor_matrix.max_with_index
-        @selected_q_ids << q_id if !q_id.nil?
-      end
-    end
-
     # Method to update available question matrix
     #
+    # @private
     # @param [Integer] column_index
     # @param [Integer] q_id
     # @author Shobhit Dixit
     def update_avail_q_matrix_column(column_index, q_id)
-      @avail_q_matrix.each_with_index do |elem, row, col|
-        if !(elem&[q_id]).empty? && col == column_index
-          @avail_q_matrix[row, col] -= [q_id]
-        end
+      @avail_q_matrix.column(column_index).each do |item|
+        item.delete(q_id)
       end
+      # @avail_q_matrix.each_with_index do |elem, row, col|
+      #   if col == column_index && !(elem&[q_id]).empty?
+      #     @avail_q_matrix[row, col] -= [q_id]
+      #   end
+      # end
     end
 
+    # Update required questions count for tags
+    # Update required questions count of difficulty_level for (column_index)
+    #
+    # @private
+    # @param [Integer] row_index
+    # @param [Integer] column_index
+    # @example tag_ids_required_question_count_hash
+    # tag_ids_required_question_count_hash = {[1,2,3] => 10, [4]=>2,[5,6]=>5}
+    # required_tags is there to maintain order of the hash
+    # @required_tags = @tag_ids_required_question_count_hash.keys
+    # @author Shobhit Dixit
     def update_tag_dl_required_q_counts(row_index, column_index)
       @tag_ids_required_question_count_hash[@required_tags[row_index]] -= 1 if @tag_ids_required_question_count_hash[@required_tags[row_index]]>0
       @dl_required_question_count_hash[dl_name(column_index)] -= 1 if @dl_required_question_count_hash[dl_name(column_index)]>0
     end
 
+    # Difficulty Level name according to index
+    #
+    # @private
+    # @param [Integer] column_index
+    # @return [Symbol] difficulty_level :easy,:medium,:tough
+    # @author Shobhit Dixit
     def dl_name(column_index)
       case column_index
       when 0
@@ -122,6 +141,9 @@ module PaperGeneration
         return :tough
       end
     end
+
+
+    private :set_q_availability_matrix, :set_selection_factor_matrix, :update_avail_q_matrix_column, :update_tag_dl_required_q_counts, :dl_name
 
   end
 end

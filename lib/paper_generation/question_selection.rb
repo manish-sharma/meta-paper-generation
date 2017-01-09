@@ -61,6 +61,7 @@ module PaperGeneration
     # Method to generate question_id selection process
     # Ever process, as PhaseOne, MiscSelection etc must override this method
     #
+    # @raise NotImplementedError
     # @author Shobhit Dixit
     def generate
       raise NotImplementedError

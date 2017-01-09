@@ -7,10 +7,18 @@ module PaperGeneration
     @dl_required_question_count_hash = nil
     @selected_q_ids = nil
 
+    # avail_q_array
+    #
+    # @return [Array] Array of available question_id
+    # @author Shobhit Dixit
     def avail_q_array
       @avail_q_array
     end
 
+    # tag_ids_required_question_count_hash
+    #
+    # @raise NoMethodError
+    # @author Shobhit Dixit
     def tag_ids_required_question_count_hash
       raise NoMethodError
     end
@@ -28,6 +36,7 @@ module PaperGeneration
 
     # select q_ids from @avail_q_array[index]
     #
+    # @private
     # @param [Integer] index difficulty_level
     # @param [Integer] q_count number of questions to be selected`
     # @return [Array] array of q_ids(Integer)
@@ -40,6 +49,8 @@ module PaperGeneration
       end
       selected_q_ids
     end
+
+    private :select_q
 
   end
 end
