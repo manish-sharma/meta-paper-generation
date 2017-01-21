@@ -29,11 +29,11 @@ module PaperGeneration
     # override method of parent class
     #
     # @param [Hash] easy_q_id_tags_hash={}
-    # @example {easy_q_id=>[tag1_id,tag2_id,..]}
+    # @example {easy_q_id1=>[tag1_id,tag2_id,..], easy_q_id2=>[tag3_id,tag2_id,..], easy_q_id3=>[tag1_id,tag2_id,..]}
     # @param [Hash] medium_q_id_tags_hash={}
-    # @example {medium_q_id=>[tag1_id,tag2_id,..]}
+    # @example {medium_q_id1=>[tag1_id,tag2_id,..], medium_q_id2=>[tag1_id,tag2_id,..]}
     # @param [Hash] tough_q_id_tags_hash={}
-    # @example {tough_q_id=>[tag1_id,tag2_id,..]}
+    # @example {tough_q_id1=>[tag1_id,tag2_id,..],tough_q_id2=>[tag1_id,tag2_id,..]}
     # @author Shobhit Dixit
     def generate(*args)
       set_q_availability_matrix(args[0], args[1], args[2])
@@ -63,16 +63,29 @@ module PaperGeneration
     # @return [Matrix] avail_q_matrix
     # @see generate
     # @author Shobhit Dixit
-    def set_q_availability_matrix(easy_q_id_tags_hash={}, medium_q_id_tags_hash={}, tough_q_id_tags_hash={})
+    # def set_q_availability_matrix(easy_q_id_tags_hash={}, medium_q_id_tags_hash={}, tough_q_id_tags_hash={})
+    #   tags_dls_avail_q = []
+    #   @required_tags.each do |t_ids|
+    #     t_ids_easy_avail_q = easy_q_id_tags_hash.map{|k,v| k if !(v & t_ids).empty?}.compact
+    #     t_ids_medium_avail_q = medium_q_id_tags_hash.map{|k,v| k if !(v & t_ids).empty?}.compact
+    #     t_ids_tough_avail_q = tough_q_id_tags_hash.map{|k,v| k if !(v & t_ids).empty?}.compact
+    #     tags_dls_avail_q << [t_ids_easy_avail_q, t_ids_medium_avail_q, t_ids_tough_avail_q]
+    #   end
+    #   @avail_q_matrix = Matrix.rows(tags_dls_avail_q)
+    # end
+    def set_q_availability_matrix(*args)
       tags_dls_avail_q = []
       @required_tags.each do |t_ids|
-        t_ids_easy_avail_q = easy_q_id_tags_hash.map{|k,v| k if !(v & t_ids).empty?}.compact
-        t_ids_medium_avail_q = medium_q_id_tags_hash.map{|k,v| k if !(v & t_ids).empty?}.compact
-        t_ids_tough_avail_q = tough_q_id_tags_hash.map{|k,v| k if !(v & t_ids).empty?}.compact
-        tags_dls_avail_q << [t_ids_easy_avail_q, t_ids_medium_avail_q, t_ids_tough_avail_q]
+        t_ids_dl_avail_q = []
+        args.each do |arg|
+          t_ids_dl_avail_q << arg.map { |k, v| k unless (v & t_ids).empty? }.compact
+        end
+      tags_dls_avail_q << t_ids_dl_avail_q
       end
       @avail_q_matrix = Matrix.rows(tags_dls_avail_q)
     end
+
+
 
     # Method that set selection_factor_matrix
     #
