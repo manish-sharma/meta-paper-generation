@@ -17,8 +17,8 @@ Gem::Specification.new do |s|
   s.license       = 'MIT'
   s.require_paths = ['lib']
 
-  s.add_development_dependency 'bundler' # packaging feature
-  s.add_development_dependency 'rake', '~>12.0.0' # Tasks manager
-  s.add_development_dependency 'rspec-rails', '~>3.5.2'
+  # s.add_development_dependency 'bundler' # packaging feature
+  s.add_development_dependency 'rake', '~>12.0', '>=12.0.0' # Tasks manager
+  s.add_development_dependency 'rspec-rails', '~>3.5', '>=3.5.2'
   s.add_development_dependency 'yard', '~>0.9.6'
 end
