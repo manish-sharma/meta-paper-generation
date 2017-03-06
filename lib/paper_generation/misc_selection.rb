@@ -44,7 +44,9 @@ module PaperGeneration
     def select_q(index, q_count)
       selected_q_ids = []
       while q_count>0 && !@avail_q_array[index].empty?
-        selected_q_ids << select_q_from(@avail_q_array[index])
+        selected_question = select_q_from(@avail_q_array[index])
+        selected_q_ids << selected_question
+        @avail_q_array[index].delete(selected_question)
         q_count -=1
       end
       selected_q_ids
