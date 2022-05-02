@@ -1,5 +1,6 @@
 $:.push File.expand_path('../lib', __FILE__)
 require 'paper_generation/version'
+require 'date'
 Gem::Specification.new do |s|
   s.name          = PaperGeneration::NAME
   s.version       = PaperGeneration::VERSION
